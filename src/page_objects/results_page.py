@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass
 from typing import Optional, List
-
 from playwright.sync_api import Page, Locator
 
 
@@ -59,11 +58,9 @@ class ResultsPage:
             logging.error(f"Bad card - skipped. Error: {str(e)}")
             return None
 
-    def loop_over_res(self) -> List[Card]:
+    def loop_over_results(self) -> List[Card]:
         results = []
         page_number = 1
-        self.card.first.wait_for(state="visible", timeout=10000)
-        self.card.last.wait_for(state="visible", timeout=10000)
         while True:
             logging.info(f"Processing page {page_number}")
 

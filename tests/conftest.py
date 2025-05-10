@@ -5,7 +5,7 @@ from src.page_objects.reservation_page import ReservationPage
 from src.page_objects.results_page import ResultsPage
 
 
-class PageManager:
+class AirbnbPages:
     def __init__(self, page: Page):
         self.page = page
         self.home_page = HomePage(page)
@@ -15,4 +15,4 @@ class PageManager:
 
 @pytest.fixture
 def pages(page: Page):
-    return PageManager(page)
+    return AirbnbPages(page)

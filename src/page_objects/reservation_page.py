@@ -11,7 +11,6 @@ class ReservationPage:
         self.page.locator('[data-plugin-in-point-id="BOOK_IT_SIDEBAR"]').wait_for(state="visible")
         summary_locator = self.page.locator('[data-plugin-in-point-id="BOOK_IT_SIDEBAR"]')
         text = summary_locator.text_content().replace('\xa0', ' ')
-        # logging.info(f"text is: {text}")
 
         price_per_night = int(text.split("night")[0].split()[-1].replace("₪", "").replace(",", ""))
         logging.info(f"extracted price: {price_per_night} from reservation card")
@@ -43,7 +42,6 @@ class ReservationPage:
                 )
             ).to_be_visible()
 
-        # heading = self.page.locator('h1:text("Request to book")')
         input_phone = self.page.get_by_test_id('login-signup-phonenumber')
         if input_phone.is_visible():
             logging.info("'A' Page, can input phone, inputting..")
