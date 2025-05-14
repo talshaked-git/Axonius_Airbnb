@@ -58,9 +58,16 @@ class ResultsPage:
             logging.error(f"Bad card - skipped. Error: {str(e)}")
             return None
 
-    def loop_over_results(self) -> List[Card]:
+    def loop_over_results(self):
         results = []
+        highest_rated_cards = []
+        cheapest_cards = []
+        max_rating = 0
+        max_reviews_for_top_rating = 0
+        min_price = float('inf')
+        highest_rated_most_reviewed = None
         page_number = 1
+
         while True:
             logging.info(f"Processing page {page_number}")
 
@@ -75,8 +82,36 @@ class ResultsPage:
                     try:
                         logging.debug(f"Processing card {idx + 1} of {len(cards)}")
                         card_data = self.parse_card(c)
-                        if card_data:
-                            results.append(card_data)
+                        if not card_data:
+                            continue
+                        results.append(card_data)
+
+                        if card_data.rating is not None:
+                            if card_data.rating > max_rating:
+                                logging.info(f"Found higher rating with {card_data.rating}, resetting list with it")
+                                max_rating = card_data.rating
+                                highest_rated_cards = [card_data]
+                                highest_rated_most_reviewed = card_data if card_data.reviews is not None else None
+                                max_reviews_for_top_rating = card_data.reviews if card_data.reviews is not None else 0
+
+                            elif card_data.rating == max_rating:
+                                highest_rated_cards.append(card_data)
+                                logging.info("Found card with same rating as max rating, adding to list")
+                                if card_data.reviews is not None and (highest_rated_most_reviewed is None or
+                                                                      card_data.reviews > max_reviews_for_top_rating):
+                                    logging.info(f"Found card amongst best rated with highest review count of "
+                                                 f"{card_data.reviews}")
+                                    highest_rated_most_reviewed = card_data
+                                    max_reviews_for_top_rating = card_data.reviews
+
+                        if card_data.price < min_price:
+                            logging.info(f"Found cheaper card with price of {card_data.price}, updating list")
+                            min_price = card_data.price
+                            cheapest_cards = [card_data]
+                        elif card_data.price == min_price:
+                            logging.info(f"Found  card with same minimum price, adding to list")
+                            cheapest_cards.append(card_data)
+
                     except Exception as e:
                         logging.error(f"Error processing card {idx + 1}: {str(e)}")
 
@@ -95,28 +130,9 @@ class ResultsPage:
                 break
 
         logging.info(f"Total cards collected: {len(results)}")
-        return results
 
-    def filter_cards_by_rating(self, cards: List[Card]) -> List[Card]:
-        rated_cards = list(filter(lambda c: c.rating is not None, cards))
-        max_rating = max(map(lambda c: c.rating, rated_cards))
-        logging.info(f"max rating card found with rating of: {max_rating}")
-        top_rated_cards = list(filter(lambda c: c.rating == max_rating, rated_cards))
-        return top_rated_cards
-
-    def filter_cards_by_price(self, cards: List[Card]) -> List[Card]:
-        min_price = min(map(lambda c: c.price, cards))
-        logging.info(f"minimum price card found with price of: {min_price}")
-        cheapest_cards = list(filter(lambda c: c.price == min_price, cards))
-        return cheapest_cards
+        return results,highest_rated_cards, cheapest_cards, highest_rated_most_reviewed
 
     def log_cards(self, cards: List[Card]):
         for c in cards:
             logging.info(f"Rating: {c.rating} Price: {c.price} Reviews: {c.reviews} Url: {c.url}")
-
-    def get_most_reviewed_card(self, cards: List[Card]) -> Card:
-        reviewed_cards = [c for c in cards if c.reviews is not None]
-        most_reviewed = max(reviewed_cards, key=lambda c: c.reviews)
-        logging.info(f"Amongst the highest rating options, selected highest review count option with rating of "
-                     f"{most_reviewed.rating} and review count of: {most_reviewed.reviews}")
-        return most_reviewed

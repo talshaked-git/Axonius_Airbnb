@@ -30,7 +30,7 @@ class ReservationPage:
         expect(guest_locator).to_have_text(guests)
         logging.info(f"extracted guests: {guests} from reservation card")
 
-    def do_reservation(self):
+    def do_reservation(self,phone):
         reserve_btn = self.page.locator('button:has([data-button-content="true"]:has-text("Reserve"))').last
         logging.info("Clicking on Reserve button")
         if reserve_btn.is_visible():
@@ -45,7 +45,7 @@ class ReservationPage:
         input_phone = self.page.get_by_test_id('login-signup-phonenumber')
         if input_phone.is_visible():
             logging.info("'A' Page, can input phone, inputting..")
-            input_phone.type("521231122")
+            input_phone.type(phone)
         else:
             logging.info("'B' page, can't input phone")
 

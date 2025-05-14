@@ -8,7 +8,7 @@ class HomePage:
         self.page = page
 
     def goto_home(self):
-        self.page.goto("https://www.airbnb.com", wait_until="load")
+        self.page.goto("https://www.airbnb.com/homes", wait_until="load")
 
     def set_location(self, location: str):
         search_input = self.page.get_by_test_id("structured-search-input-field-query")
@@ -17,29 +17,30 @@ class HomePage:
         search_input.fill(location)
 
     def set_date(self, checkin: datetime, checkout: datetime):
-        self.page.get_by_test_id("structured-search-input-field-split-dates-0").click()
+        self.page.locator('div[role="button"]:has-text("Check in")').click()
         logging.info("Opening date selector")
 
         checkin_str = checkin.strftime('%Y-%m-%d')
         checkout_str = checkout.strftime('%Y-%m-%d')
 
-        self.page.locator(f'[data-state--date-string="{checkin_str}"]').click()
+        self.page.locator(f'button[data-state--date-string="{checkin_str}"]').first.click()
         logging.info(f"Clicked check-in date: {checkin_str}")
 
-        self.page.locator(f'[data-state--date-string="{checkout_str}"]').click()
+        self.page.locator(f'button[data-state--date-string="{checkout_str}"]').first.click()
         logging.info(f"Clicked check-out date: {checkout_str}")
 
     def set_guests(self, adults: int = 1, children: int = 0, infants: int = 0, pets: int = 0):
-        self.page.get_by_test_id("structured-search-input-field-guests-button").click()
+        self.page.get_by_role("button", name="Who Add guests").click()
+
         logging.info("Setting guests")
         for _ in range(adults):
-            self.page.get_by_test_id("stepper-adults-increase-button").click()
+            self.page.get_by_test_id("stepper-adults-increase-button").first.click()
         for _ in range(children):
-            self.page.get_by_test_id("stepper-children-increase-button").click()
+            self.page.get_by_test_id("stepper-children-increase-button").first.click()
         for _ in range(infants):
-            self.page.get_by_test_id("stepper-infants-increase-button").click()
+            self.page.get_by_test_id("stepper-infants-increase-button").first.click()
         for _ in range(pets):
-            self.page.get_by_test_id("stepper-pets-increase-button").click()
+            self.page.get_by_test_id("stepper-pets-increase-button").first.click()
 
     def submit_search(self):
         logging.info("Clicking on submit search")
